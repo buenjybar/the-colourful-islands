@@ -1,0 +1,27 @@
+/* You can add global styles to this file, and also import other style files */
+
+body, html {
+  margin: 0;
+  padding: 0;
+  background-color: #000;
+  background-image: url('https://wallpapercave.com/wp/wp753589.jpg');
+}
+
+h1, span, p {
+  color: #f1e013;
+  font-family: 'Pirata One', sans-serif;
+  text-shadow: 0.2rem 0.2rem #3c3c3c;
+}
+
+p, span {
+  text-align: justify;
+  font-size: 1.4rem;
+  line-height: 2rem;
+  margin: 1.3rem 2rem;
+}
+
+input {
+  padding: 0.5rem 1rem;
+  border-radius: 0.4rem;
+  margin: 0 .5rem;
+}
