@@ -19,7 +19,11 @@
 
 canvas {
   margin: 0 auto;
-  border: solid 0.2rem #bbb;
+  border: 0.7rem solid #f1e013;
+}
+
+.center {
+  border: 0.5rem dashed #f1e013;
 }
 
 img {
