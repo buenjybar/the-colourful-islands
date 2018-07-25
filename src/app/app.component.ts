@@ -49,6 +49,7 @@ export class AppComponent implements OnInit {
 
   public onColorChanged(event: Event) {
     // Write your code below.
+    this.newColor = this.inputEl.nativeElement.value;
   }
 
   private getInitialColor(value: number): string {
@@ -135,6 +136,30 @@ export class AppComponent implements OnInit {
    */
   private attachEventListeners() {
     // Write your code below.
+    const canvas = this.canvasEl.nativeElement;
+    canvas.width = this.canvasWidth;
+    canvas.height = this.canvasHeight;
+    const squareWidth = Math.floor(canvas.width / SIZE);
+    const squareHeight = Math.floor(canvas.height / SIZE);
+    const self = this;
+
+    canvas.addEventListener('click', function (event) {
+
+      const x = Math.floor(event.offsetX / squareWidth) * squareWidth,
+        y = Math.floor(event.offsetY / squareHeight) * squareHeight,
+        row = y / squareHeight,
+        col = x / squareWidth;
+
+      if (self.getValueAt(row, col) === AreaStatus.Land) {
+        self.setIslandColor(row, col, self.newColor);
+
+        const islandDiscoveryStatuses = Array(SIZE).fill(false).map(() => Array(SIZE).fill(false));
+        self.traverseIsland(row, col, islandDiscoveryStatuses, self.newColor);
+
+        self.render();
+      }
+
+    }, false);
   }
 
   /**
@@ -143,5 +168,50 @@ export class AppComponent implements OnInit {
    */
   private findIslands() {
     // Write your code below.
+
+    // on init, all island are undiscovered
+    const islandDiscoveryStatuses = Array(SIZE).fill(false).map(() => Array(SIZE).fill(false));
+    let discoveredIslandColor;
+
+    // start discovering islands
+    for (let i = 0; i < SIZE; ++i) {
+      for (let j = 0; j < SIZE; ++j) {
+        if (this.getValueAt(i, j) === AreaStatus.Land && !islandDiscoveryStatuses[i][j]) {
+          discoveredIslandColor = this.generateRandomColor();
+          this.setIslandColor(i, j, discoveredIslandColor);
+          this.traverseIsland(i, j, islandDiscoveryStatuses, discoveredIslandColor);
+          ++this.numberOfIslands;
+        }
+      }
+    }
   }
+
+  /**
+   *  Discover island neighbors
+   */
+  private traverseIsland(row, col, islandDiscoveryStatuses, discoveredIslandColor) {
+    // row and column numbers of the 8 neighbors
+    const rowNumbers = [-1, -1, -1, 0, 0, 1, 1, 1];
+    const colNumbers = [-1, 0, 1, -1, 1, -1, 0, 1];
+
+    islandDiscoveryStatuses[row][col] = true;
+
+    for (let i = 0; i < 8; ++i) {
+      if (this.canBeTraversed(row + rowNumbers[i], col + colNumbers[i], islandDiscoveryStatuses)) {
+        this.setIslandColor(row + rowNumbers[i], col + colNumbers[i], discoveredIslandColor);
+        this.traverseIsland(row + rowNumbers[i], col + colNumbers[i], islandDiscoveryStatuses, discoveredIslandColor);
+      }
+    }
+  }
+
+  /**
+   * check if the area can be traversed
+   */
+  private canBeTraversed(row, col, islandDiscoveryStatuses) {
+    return (row >= 0) && (row < SIZE) &&
+      (col >= 0) && (col < SIZE) &&
+      (this.getValueAt(row, col) === AreaStatus.Land &&
+      !islandDiscoveryStatuses[row][col]);
+  }
+
 }
