@@ -16,12 +16,20 @@ describe('AppComponent', () => {
   it(`should have as title 'app'`, async(() => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('app');
+    expect(app.title).toEqual('The Island Discovery');
   }));
   it('should render title in a h1 tag', async(() => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain('Welcome to the-colourful-islands!');
+    expect(compiled.querySelector('h1').textContent).toContain('Welcome to The Island Discovery');
+  }));
+  it('should render the correct number of island', async(() => {
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.debugElement.componentInstance;
+    fixture.detectChanges();
+    const compiled = fixture.debugElement.nativeElement;
+    expect(app.numberOfIslands).toBeGreaterThan(0);
+    expect(compiled.querySelector('.right p').textContent).toContain('The number of islands is ' + app.numberOfIslands);
   }));
 });
