@@ -167,6 +167,7 @@ export class AppComponent implements OnInit {
        let downLeft = this.island[row-1 * SIZE + col+1];
        let upRight = this.island[row+1 * SIZE + col-1];
        let downRight = this.island[row+1 * SIZE + col+1];
+       ctx.fillStyle = SEA_COLOR;
        if(self && (left || right || up || down || upLeft || upRight || downRight || downLeft)){
          this.numberOfIslands++;
          ctx.fillStyle = this.selectedColor ? this.selectedColor : this.generateRandomColor();
@@ -174,7 +175,6 @@ export class AppComponent implements OnInit {
        y = row * squareHeight;
        x = col * squareWidth;
        ctx.fillRect(x, y, squareWidth, squareHeight);
-       ctx.fillStyle = SEA_COLOR;
       }
     }
   }
