@@ -26,6 +26,7 @@ export class AppComponent implements OnInit {
   public newColor: string = '#00FF00';
   public timeGeneration = 0;
   public numberOfIslands = 0;
+  public selectedColor = null;
 
   @ViewChild('canvasElement')
   public canvasEl;
@@ -43,12 +44,14 @@ export class AppComponent implements OnInit {
     const end = performance.now();
     this.timeGeneration = Math.floor((end - start) * 100) / 100;
 
-    this.attachEventListeners();
-    this.render();
+    //this.attachEventListeners();
+    //this.render();
   }
 
   public onColorChanged(event: Event) {
     // Write your code below.
+    this.selectedColor = event.srcElement['value'];
+    console.log(event.srcElement);
   }
 
   private getInitialColor(value: number): string {
@@ -134,7 +137,8 @@ export class AppComponent implements OnInit {
    * attach event listeners
    */
   private attachEventListeners() {
-    // Write your code below.
+    console.log(this.selectedColor)
+      this.findIslands();
   }
 
   /**
@@ -142,6 +146,36 @@ export class AppComponent implements OnInit {
    * the definition of an Island is : All LAND square that connect to an other LAND square
    */
   private findIslands() {
-    // Write your code below.
+    const canvas = this.canvasEl.nativeElement;
+    canvas.width = this.canvasWidth;
+    canvas.height = this.canvasHeight;
+    const ctx = canvas.getContext('2d');
+
+    const squareWidth = Math.floor(canvas.width / SIZE);
+    const squareHeight = Math.floor(canvas.height / SIZE);
+
+    let x, y;
+    this.numberOfIslands = 0;
+    for (let row = 0; row < SIZE; row++) {
+      for (let col = 0; col < SIZE; col++) {
+       let self = this.island[row * SIZE + col];
+       let left = this.island[row-1 * SIZE + col];
+       let right = this.island[row+1 * SIZE + col];
+       let up = this.island[row * SIZE + col-1];
+       let down = this.island[row * SIZE + col+1];
+       let upLeft = this.island[row-1 * SIZE + col-1];
+       let downLeft = this.island[row-1 * SIZE + col+1];
+       let upRight = this.island[row+1 * SIZE + col-1];
+       let downRight = this.island[row+1 * SIZE + col+1];
+       if(self && (left || right || up || down || upLeft || upRight || downRight || downLeft)){
+         this.numberOfIslands++;
+         ctx.fillStyle = this.selectedColor ? this.selectedColor : this.generateRandomColor();
+       }
+       y = row * squareHeight;
+       x = col * squareWidth;
+       ctx.fillRect(x, y, squareWidth, squareHeight);
+       ctx.fillStyle = SEA_COLOR;
+      }
+    }
   }
 }
