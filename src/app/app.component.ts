@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
-const SIZE = 50;
-const SEA_LAND_RATIO = 40;
+const SIZE =  50;
+const SEA_LAND_RATIO = 20;
 
 enum AreaStatus {
   Sea = 0,
@@ -142,6 +142,46 @@ export class AppComponent implements OnInit {
    * the definition of an Island is : All LAND square that connect to an other LAND square
    */
   private findIslands() {
-    // Write your code below.
+    for (let row = 0; row < SIZE; row++) {
+      this.findNeighboorIslandByRow(row);
+    }
   }
+  private isUnderMaxSize(col: number) {
+    return col < SIZE;
+  }
+  private isBiggerMinSize(col: number) {
+    return col > -1;
+  }
+  private isSea(row: number, col: number) {
+    return this.getValueAt(row, col) === 0;
+  }
+  private isInitialLand(row: number, col: number) {
+    return this.getIslandColor(row, col) === LAND_COLOR;
+  }
+  private findNeighboorIsland(row: number, col: number, color: string) {
+    if (this.isNotValidPosition(row, col) || this.isSea(row, col) ) {
+       return;
+    }
+    if (this.isInitialLand(row, col)) {
+      this.setIslandColor(row, col, color);
+      this.findNeighboorIsland(row - 1, col, color);
+      this.findNeighboorIsland(row + 1, col, color);
+      this.findNeighboorIsland(row, col - 1, color);
+      this.findNeighboorIsland(row, col + 1, color);
+    }
+  }
+  private findNeighboorIslandByRow(row: number) {
+    for (let col = 0; col < SIZE; col++) {
+      if (this.isInitialLand(row, col)) {
+        const color = this.generateRandomColor();
+        this.numberOfIslands++;
+        this.findNeighboorIsland(row, col, color);
+      }
+    }
+  }
+  private isNotValidPosition(row: number, col: number) {
+    return !this.isBiggerMinSize(row) || !this.isUnderMaxSize(row)
+        || !this.isBiggerMinSize(col) || !this.isUnderMaxSize(col);
+  }
+
 }
