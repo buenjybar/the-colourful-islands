@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
 const SIZE = 50;
-const SEA_LAND_RATIO = 40;
+const SEA_LAND_RATIO = 30;
 
 enum AreaStatus {
   Sea = 0,
@@ -37,7 +37,6 @@ export class AppComponent implements OnInit {
 
   public ngOnInit() {
     this.generate();
-
     const start = performance.now();
     this.findIslands();
     const end = performance.now();
@@ -47,8 +46,9 @@ export class AppComponent implements OnInit {
     this.render();
   }
 
+
+//we don't need this
   public onColorChanged(event: Event) {
-    // Write your code below.
   }
 
   private getInitialColor(value: number): string {
@@ -96,12 +96,10 @@ export class AppComponent implements OnInit {
    * render the island into the canvas Element
    */
   private render() {
-
     const canvas = this.canvasEl.nativeElement;
     canvas.width = this.canvasWidth;
     canvas.height = this.canvasHeight;
     const ctx = canvas.getContext('2d');
-
     const squareWidth = Math.floor(canvas.width / SIZE);
     const squareHeight = Math.floor(canvas.height / SIZE);
 
@@ -134,14 +132,86 @@ export class AppComponent implements OnInit {
    * attach event listeners
    */
   private attachEventListeners() {
-    // Write your code below.
+    this.canvasEl.nativeElement.onclick = this.createChangeColor(this)
   }
 
-  /**
-   * discover islands and apply a new color to each of them.
-   * the definition of an Island is : All LAND square that connect to an other LAND square
-   */
+  //Allow access to this in event scope
+  private createChangeColor(self) {
+    return((event :MouseEvent) => {
+      let x = 0;
+      let y = 0;
+      let canvas = <HTMLCanvasElement>event.target;
+      x = event.pageX - canvas.offsetLeft;
+      y = event.pageY - canvas.offsetTop;
+      x = Math.floor(x / (self.canvasWidth / SIZE));
+      y = Math.floor(y / (self.canvasHeight / SIZE));
+      if (self.getValueAt(y, x) > 1) {
+        if (self.parseInput(self.inputEl.nativeElement.value) === true) {
+          self.scanAround(y, x, self.inputEl.nativeElement.value);
+          self.render();
+        }
+      }
+    })
+  }
+
+  //Make sure hex code in input field is valid
+  private parseInput(value) {
+    if (value.length === 4)
+      var checkedInput  = /^#[0-9A-F]{3}$/i.test(value);
+    else if (value.length === 7)
+      var checkedInput  = /^#[0-9A-F]{6}$/i.test(value);
+    else
+      checkedInput = false;
+    return checkedInput;
+  }
+
+  private scanAround(row, col, color) {
+    let initVal = this.getValueAt(row, col);
+    this.setIslandColor(row, col, color);
+    this.setValueAt(row, col, (initVal + 1));
+
+    let direction = 0;
+    while (direction < 8) {
+      let offsetRow = row;
+      let offsetCol = col;
+      if (direction === 0 || direction === 1 || direction === 7)
+        offsetCol += 1;
+      if (direction == 1 || direction === 2 || direction === 3)
+        offsetRow += 1;
+      if (direction === 3 || direction === 4 || direction === 5)
+        offsetCol -= 1;
+      if (direction === 5 || direction === 6 || direction === 7)
+        offsetRow -= 1;
+      if (offsetCol < SIZE && offsetRow < SIZE && offsetCol >= 0 &&
+          offsetRow >= 0 && this.getValueAt(offsetRow, offsetCol) === initVal) {
+        this.scanAround(offsetRow, offsetCol, color);
+      }
+        direction++;
+    }
+  }
+
+
+  //Make sure color is unique
+  private  defineColor(colorChecker) {
+    const color = this.generateRandomColor();
+    for (let i = 0; i < colorChecker.length; i++) {
+      if (colorChecker[i] === color)
+        return this.defineColor(colorChecker);
+    }
+    colorChecker.push(color);
+    return color;
+  }
+
   private findIslands() {
-    // Write your code below.
+    var colorChecker = new Array();
+    for (let row = 0; row < SIZE;  row++) {
+      for (let col = 0; col < SIZE; col++) {
+        if (this.getValueAt(row, col) === 1) {
+          let color = this.defineColor(colorChecker);
+          this.numberOfIslands++;
+          this.scanAround(row, col, color);
+        }
+      }
+    }
   }
 }
