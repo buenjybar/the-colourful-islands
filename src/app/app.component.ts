@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 
 const SIZE = 50;
 const NB_ISLANDS = 5;
-const ISLAND_WIDTH = 5;
+const ISLAND_WIDTH = 3;
 
 enum AreaStatus {
   Sea = 0,
