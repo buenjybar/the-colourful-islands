@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 
 const SIZE = 50;
-const SEA_LAND_RATIO = 40;
+const NB_ISLANDS = 5;
+const ISLAND_WIDTH = 3;
 
 enum AreaStatus {
   Sea = 0,
@@ -21,9 +22,9 @@ export class AppComponent implements OnInit {
   public title = 'The Island Discovery';
   public canvasWidth = 800;
   public canvasHeight = 800;
-  public island: number[] = new Array(SIZE * SIZE);
-  public color: string[] = new Array(SIZE * SIZE);
-  public newColor: string = '#00FF00';
+  public island: number[] = new Array(SIZE * SIZE).fill(AreaStatus.Sea);
+  public color: string[] = new Array(SIZE * SIZE).fill(SEA_COLOR);
+  public newColor = '#00FF00';
   public timeGeneration = 0;
   public numberOfIslands = 0;
 
@@ -74,20 +75,29 @@ export class AppComponent implements OnInit {
     return this.color[row * SIZE + column];
   }
 
+  private randomInt(maxValue: number) {
+    return Math.round(Math.random() * maxValue);
+  }
+
   /**
    * generate new island
    */
   private generate() {
 
-    let state, color;
-    for (let col = 0; col < SIZE; col++) {
-      for (let row = 0; row < SIZE; row++) {
-        state = Math.round(Math.random() * 100);
-        const area = state >= SEA_LAND_RATIO ? AreaStatus.Sea : AreaStatus.Land;
-        color = this.getInitialColor(area);
-
-        this.setValueAt(row, col, area);
-        this.setIslandColor(row, col, color);
+    const landColor = this.getInitialColor(AreaStatus.Land);
+    let centerCol, centerRow, distanceToCenter, probability;
+    for (let islandIdx = 0; islandIdx < NB_ISLANDS; islandIdx++) {
+      centerCol = this.randomInt(SIZE);
+      centerRow = this.randomInt(SIZE);
+      for (let col = 0; col < SIZE; col++) {
+        for (let row = 0; row < SIZE; row++) {
+          distanceToCenter = Math.pow(col - centerCol, 2) + Math.pow(row - centerRow, 2);
+          probability = Math.exp(-distanceToCenter / Math.pow(ISLAND_WIDTH, 2));
+          if (Math.random() <= probability) {
+            this.setValueAt(row, col, AreaStatus.Land);
+            this.setIslandColor(row, col, landColor);
+          }
+        }
       }
     }
   }
