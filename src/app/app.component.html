@@ -24,7 +24,8 @@
   </div>
 
   <div class="right">
-    <span>The island color is <input [value]="newColor" (change)="onColorChanged($event)" #inputElement></span>
+    <span>The island color is
+      <input [value]="newColor" (change)="onColorChanged($event)" #inputElement></span>
     <br>
     <p>The number of islands is {{numberOfIslands}}</p>
     <p>Generated in {{timeGeneration}}ms</p>

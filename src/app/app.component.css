@@ -4,10 +4,10 @@
 }
 
 .container {
-  display: flex;
+  /*display: flex;
   flex-direction: row;
   align-items: flex-start;
-  justify-content: space-around;
+  justify-content: space-around;*/
 }
 
 .left, .center, .right {

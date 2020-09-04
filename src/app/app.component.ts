@@ -12,6 +12,7 @@ enum AreaStatus {
 
 const SEA_COLOR = '#cbe1ff';
 const LAND_COLOR = '#bbbbbb';
+const ISLAND = '#209122';
 
 @Component({
   selector: 'app-root',
@@ -34,7 +35,7 @@ export class AppComponent implements OnInit {
   @ViewChild('inputElement')
   public inputEl;
 
-  private position;
+  // private position;
 
   public ngOnInit() {
     this.generate();
@@ -44,12 +45,22 @@ export class AppComponent implements OnInit {
     const end = performance.now();
     this.timeGeneration = Math.floor((end - start) * 100) / 100;
 
-    this.attachEventListeners();
+    // didn't need this function
+    // this.attachEventListeners();
     this.render();
   }
 
-  public onColorChanged(event: Event) {
-    // Write your code below.
+  public onColorChanged(event) {
+    this.newColor = event.target.value;
+    // add the new color to each discovered land
+    this.island.map( (square, i) => {
+      if (square === AreaStatus.Discovered) {
+        const row = Math.ceil(i / SIZE) - 1;
+        const col = i % SIZE;
+        this.setIslandColor(row, col, this.newColor);
+      }
+    });
+    this.render();
   }
 
   private getInitialColor(value: number): string {
@@ -83,7 +94,6 @@ export class AppComponent implements OnInit {
    * generate new island
    */
   private generate() {
-
     const landColor = this.getInitialColor(AreaStatus.Land);
     let centerCol, centerRow, distanceToCenter, probability;
     for (let islandIdx = 0; islandIdx < NB_ISLANDS; islandIdx++) {
@@ -106,7 +116,6 @@ export class AppComponent implements OnInit {
    * render the island into the canvas Element
    */
   private render() {
-
     const canvas = this.canvasEl.nativeElement;
     canvas.width = this.canvasWidth;
     canvas.height = this.canvasHeight;
@@ -144,14 +153,43 @@ export class AppComponent implements OnInit {
    * attach event listeners
    */
   private attachEventListeners() {
-    // Write your code below.
   }
 
+
+  private recursivelyFindIslands(i: number) {
+    // discovered square
+    this.island[i] = AreaStatus.Discovered;
+    // using this formula to find position of square in the color array
+    const row = Math.ceil(i / SIZE) - 1;
+    const col = i % SIZE;
+    this.setIslandColor( row, col, ISLAND );
+
+    // check all 8 squares around the argument square
+    if (this.island[i + 1] === 1) { this.recursivelyFindIslands(i + 1);
+    } else if (this.island[i - 1] === 1 ) { this.recursivelyFindIslands(i - 1);
+    } else if (this.island[i - 49] === 1 ) { this.recursivelyFindIslands(i - 49);
+    } else if (this.island[i - 50] === 1 ) { this.recursivelyFindIslands(i - 50);
+    } else if (this.island[i - 51 ] === 1 ) { this.recursivelyFindIslands(i - 51);
+    } else if (this.island[i + 51] === 1 ) { this.recursivelyFindIslands(i + 51);
+    } else if (this.island[i + 50] === 1 ) { this.recursivelyFindIslands(i + 50);
+    } else if (this.island[i + 49] === 1 ) { this.recursivelyFindIslands(i + 49); }
+
+  }
   /**
    * discover islands and apply a new color to each of them.
-   * the definition of an Island is : All LAND square that connect to an other LAND square
+   * the definition of an Island is : All LAND square that connect to another LAND square
    */
   private findIslands() {
-    // Write your code below.
+    this.island.map( (square, i) => {
+      if (square === AreaStatus.Land) {
+        // find neighbour squares
+        this.recursivelyFindIslands(i);
+        // after finding every close square, increment number of islands by 1
+        // in case the next square is already discovered, no need to increment
+        if (this.island[i + 1] !== AreaStatus.Discovered) {
+          this.numberOfIslands += 1;
+        }
+      }
+    });
   }
 }
